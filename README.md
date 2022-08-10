@@ -1,2 +1,5 @@
-# validate_ethereum_header
-validating header hash for Ethereum
+# validating Ethereum header offline 
+- block headers
+- storage and account proofs
+- transactions proofs
+- transaction receipts proofs
