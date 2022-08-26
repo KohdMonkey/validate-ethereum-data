@@ -45,20 +45,6 @@ func ReceiptsFromJSON() []*types.Receipt {
 	return receipts
 }
 
-func TestReceiptsRoot() {
-	receipts := ReceiptsFromJSON()
-
-	hasher := trie.NewStackTrie(nil)
-	treeHash := types.DeriveSha(types.Receipts(receipts), hasher)
-
-	receiptsRoot := "0x0595fa2fea554388f3ac06cb67ddc1e644fea876cb0e9d14fac30d266602afe9"
-	fmt.Println("expected receipts root: ", receiptsRoot)
-	fmt.Println("receipts root from tree: ", treeHash.String())
-	if receiptsRoot == treeHash.String() {
-		fmt.Println("roots match!")
-	}
-}
-
 func HeaderFromJSON() types.Header {
 	transactionsFile := DataDir + "/block-" + strconv.Itoa(BlockNum) + "-header.json"
 	jsonFile, err := os.Open(transactionsFile)
