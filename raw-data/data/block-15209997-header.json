@@ -1,0 +1,18 @@
+{
+    "parentHash": "0x90f0add7987a9e2aa1387a1aaff172d69d546e780956da72cd53f7caf2ce948b",
+    "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+    "miner": "0x52bc44d5378309ee2abf1539bf71de1b7d7be3b5",
+    "stateRoot": "0xaf60dbd78c7899c2525aca9ff57da0a09c615632deffc4063dcb5fbd77e7f137",
+    "transactionsRoot": "0xc2ce659b1f269830544e9d1f239db6ace67b22bf4e71da786ac5fd606d599c2e",
+    "receiptsRoot": "0x5ff308f613dd6b9cc880622fe638c4099c38fc85d02db7c738952618380360fd",
+    "logsBloom": "0x3ef7c57fd5378fb3bed16ffded71b3ffb3fabfadda45df90f2b5d74dfec79b778ff7df6bf813f2d7ffa6de6e3687c93bfe3e191f7b7eff1ce9dfbeadffff2fd92ceb7dcb9eb1dd3ef9b7b6ffff7f63faeff7dbdeff7ff5b3badefdf187feaf6fbbfddf3fbefad689f967fee3f72279db7cf7effcffddaff34abd6ddee84df10defb7dff4a3eada7dbfdeeb75fff87ebcb45f2ff3bb587ff8d7fee6f75197feddafed777f57cf67be7feff5ffcdbaefce1d87bbfdf727ddff3bfbe7fcc79dfb57bf589ba3466bc3f6ed3af5afedf6dbf73f5c76c7677b3e7cbdc97b7f3a5ff9b9c9ff7d3fed3767bb53dffddf8dfdedcd27fcfb7e9bcf7f78b77abebdf667b8e7",
+    "difficulty": "0x2966047d9a9f91",
+    "number": "0xe8160d",
+    "gasLimit": "0x1c9c380",
+    "gasUsed": "0x1c97e14",
+    "timestamp": "0x62de34a9",
+    "extraData": "0x6e616e6f706f6f6c2e6f7267",
+    "mixHash": "0x8b0f9877230e5e2e103e8a9c2b271558cdfd1ca939f7ef49bccace46cea7019b",
+    "nonce": "0xb5f4492266a32898",
+    "baseFeePerGas": "0x147424da1"
+}
