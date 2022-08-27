@@ -5,30 +5,55 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/ethereum/go-ethereum/trie"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/ethereum/go-ethereum/trie"
 )
 
 const (
-	DataDir  = "data"
-	BlockNum = 15209997
+	_DataDir  = "data"
+	_BlockNum = 15209997
 
-	ReceiptsRoot = "0x5ff308f613dd6b9cc880622fe638c4099c38fc85d02db7c738952618380360fd"
+	_ReceiptsRoot = "0x5ff308f613dd6b9cc880622fe638c4099c38fc85d02db7c738952618380360fd"
 
-	HeaderHash = "0x868248867378bf14da3923ba2242e00a97154f390956ee5d5f7793f97920c047"
+	_HeaderHash = "0x868248867378bf14da3923ba2242e00a97154f390956ee5d5f7793f97920c047"
 	// BlockHash A block's hash is just the hash of its header.
-	BlockHash = "0x868248867378bf14da3923ba2242e00a97154f390956ee5d5f7793f97920c047"
+	_BlockHash = "0x868248867378bf14da3923ba2242e00a97154f390956ee5d5f7793f97920c047"
 )
 
+// RequestData struct to hold parameters for rpc call
+type RequestData struct {
+	Method  string        `json:"method"`
+	Params  []interface{} `json:"params"`
+	ID      int           `json:"id"`
+	Jsonrpc string        `json:"jsonrpc"`
+}
+
+// ResponseData struct to hold response data with a single rlp-encoded string
+type ResponseData struct {
+	Jsonrpc string `json:"jsonrpc"`
+	ID      int    `json:"id"`
+	Result  string `json:"result"`
+}
+
+// ResponseDataArray struct to hold response data with an array of rlp-encoded strings
+type ResponseDataArray struct {
+	Jsonrpc string   `json:"jsonrpc"`
+	ID      int      `json:"id"`
+	Result  []string `json:"result"`
+}
+
+// ReceiptsFromJSON load receipts from json file
 func ReceiptsFromJSON() []*types.Receipt {
-	receiptsFile := DataDir + "/block-" + strconv.Itoa(BlockNum) + "-receipts.json"
+	receiptsFile := _DataDir + "/block-" + strconv.Itoa(_BlockNum) + "-receipts.json"
 	jsonFile, err := os.Open(receiptsFile)
+
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error opening file: %v\n", err)
 		os.Exit(1)
@@ -40,13 +65,15 @@ func ReceiptsFromJSON() []*types.Receipt {
 		fmt.Fprintf(os.Stderr, "error reading file: %v\n", err)
 		os.Exit(1)
 	}
+
 	var receipts []*types.Receipt
 	json.Unmarshal(byteValue, &receipts)
 	return receipts
 }
 
+// HeaderFromJSON load header from json file
 func HeaderFromJSON() types.Header {
-	transactionsFile := DataDir + "/block-" + strconv.Itoa(BlockNum) + "-header.json"
+	transactionsFile := _DataDir + "/block-" + strconv.Itoa(_BlockNum) + "-header.json"
 	jsonFile, err := os.Open(transactionsFile)
 	PanicError(err)
 	defer jsonFile.Close()
@@ -70,25 +97,7 @@ func ExitError(err string) {
 	os.Exit(1)
 }
 
-type RequestData struct {
-	Method  string        `json:"method"`
-	Params  []interface{} `json:"params"`
-	ID      int           `json:"id"`
-	Jsonrpc string        `json:"jsonrpc"`
-}
-
-type ResponseData struct {
-	Jsonrpc string `json:"jsonrpc"`
-	ID      int    `json:"id"`
-	Result  string `json:"result"`
-}
-
-type ResponseDataArray struct {
-	Jsonrpc string   `json:"jsonrpc"`
-	ID      int      `json:"id"`
-	Result  []string `json:"result"`
-}
-
+// ParseResponse decode http response into ResponseData struct
 func ParseResponse(response *http.Response) ResponseData {
 	var resData ResponseData
 	json.NewDecoder(response.Body).Decode(&resData)
@@ -96,6 +105,7 @@ func ParseResponse(response *http.Response) ResponseData {
 	return resData
 }
 
+// ParseResponseArray decode http response into ResponseDataArray struct
 func ParseResponseArray(response *http.Response) ResponseDataArray {
 	var resData ResponseDataArray
 	json.NewDecoder(response.Body).Decode(&resData)
@@ -103,12 +113,14 @@ func ParseResponseArray(response *http.Response) ResponseDataArray {
 	return resData
 }
 
+// ResultToByteArray parse hex-encoded string into a byte array
 func ResultToByteArray(resString string) []byte {
 	data, err := hex.DecodeString(resString[2:])
 	PanicError(err)
 	return data
 }
 
+// BytesToHeader decode rlp-encoded header
 func BytesToHeader(dataBytes []byte) *types.Header {
 	var header *types.Header
 	err := rlp.DecodeBytes(dataBytes, &header)
@@ -117,6 +129,7 @@ func BytesToHeader(dataBytes []byte) *types.Header {
 	return header
 }
 
+// BytesToBlock decode rlp-encoded block
 func BytesToBlock(dataBytes []byte) *types.Block {
 	var block *types.Block
 	err := rlp.DecodeBytes(dataBytes, &block)
@@ -125,6 +138,7 @@ func BytesToBlock(dataBytes []byte) *types.Block {
 	return block
 }
 
+// ExecuteRequest make a rpc call to the client with the given request data
 func ExecuteRequest(data RequestData) *http.Response {
 	payloadBytes, err := json.Marshal(data)
 	PanicError(err)
@@ -142,11 +156,12 @@ func ExecuteRequest(data RequestData) *http.Response {
 	return resp
 }
 
+// VerifyRawHeader verify rlp-encoded header data from the client
 func VerifyRawHeader() {
 	fmt.Println("Verifying raw header... ")
 	data := RequestData{
 		Method:  "debug_getHeaderRlp",
-		Params:  []interface{}{BlockNum},
+		Params:  []interface{}{_BlockNum},
 		ID:      1,
 		Jsonrpc: "2.0",
 	}
@@ -171,20 +186,21 @@ func VerifyRawHeader() {
 	header := BytesToHeader(headerBytes)
 	headerHashStr := header.Hash().String()
 
-	if headerHashStr != HeaderHash {
+	if headerHashStr != _HeaderHash {
 		ExitError("header hash does not match")
 	}
 
 	fmt.Println("header hash matches")
 	fmt.Println("Hash from client: ", headerHashStr)
-	fmt.Println("Expected hash: ", HeaderHash)
+	fmt.Println("Expected hash: ", _HeaderHash)
 }
 
+// VerifyRawBlock verify rlp-encoded block data from the client
 func VerifyRawBlock() {
 	fmt.Println("Verifying raw block... ")
 	data := RequestData{
 		Method:  "debug_getBlockRlp",
-		Params:  []interface{}{BlockNum},
+		Params:  []interface{}{_BlockNum},
 		ID:      1,
 		Jsonrpc: "2.0",
 	}
@@ -199,18 +215,19 @@ func VerifyRawBlock() {
 	block := BytesToBlock(blockBytes)
 	blockHashStr := block.Hash().String()
 
-	if blockHashStr != BlockHash {
+	if blockHashStr != _BlockHash {
 		ExitError("block hash does not match")
 	}
 
 	fmt.Println("block hash matches")
 	fmt.Println("Hash from client: ", blockHashStr)
-	fmt.Println("Expected hash: ", BlockHash)
+	fmt.Println("Expected hash: ", _BlockHash)
 }
 
+// VerifyRawReceipts verify rlp-encoded receipts from the client
 func VerifyRawReceipts() {
 	fmt.Println("Verifying raw receipts... ")
-	BlockNumString := fmt.Sprintf("0x%x", BlockNum)
+	BlockNumString := fmt.Sprintf("0x%x", _BlockNum)
 	data := RequestData{
 		Method:  "debug_getRawReceipts",
 		Params:  []interface{}{BlockNumString},
@@ -257,13 +274,13 @@ func VerifyRawReceipts() {
 	treeHash := types.DeriveSha(types.Receipts(receipts), hasher)
 	treeHashStr := treeHash.String()
 
-	if treeHashStr != ReceiptsRoot {
+	if treeHashStr != _ReceiptsRoot {
 		ExitError("receipts root does not match")
 	}
 
 	fmt.Println("receipts root matches")
 	fmt.Println("root from client: ", treeHashStr)
-	fmt.Println("Expected root: ", ReceiptsRoot)
+	fmt.Println("Expected root: ", _ReceiptsRoot)
 }
 
 func main() {
