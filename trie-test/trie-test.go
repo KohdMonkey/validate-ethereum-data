@@ -79,11 +79,12 @@ func TransactionsFromJSON(blockNum int) []*types.Transaction {
 	return txs
 }
 
-// encodeBufferPool holds temporary encoder buffers for DeriveSha and TX encoding.
+// from go-ethereum/core/types/hashing.go
 var encodeBufferPool = sync.Pool{
 	New: func() interface{} { return new(bytes.Buffer) },
 }
 
+// from go-ethereum/core/types/hashing.go
 func encodeForDerive(list DerivableList, i int, buf *bytes.Buffer) []byte {
 	buf.Reset()
 	list.EncodeIndex(i, buf)
@@ -93,6 +94,7 @@ func encodeForDerive(list DerivableList, i int, buf *bytes.Buffer) []byte {
 	return common.CopyBytes(buf.Bytes())
 }
 
+// InsertTrieIndexOrder inserting items into a trie by their index
 func InsertTrieIndexOrder(list DerivableList, hasher TrieUpdater) {
 	keybuf := new(bytes.Buffer)
 	valueBuf := encodeBufferPool.Get().(*bytes.Buffer)
@@ -115,6 +117,7 @@ func OldDeriveSha(list DerivableList, hasher TrieHasher) common.Hash {
 	return hasher.Hash()
 }
 
+// InsertTrieByteOrder inserts items into a trie by the byte order of its key
 func InsertTrieByteOrder(list DerivableList, hasher TrieUpdater) {
 	hasher.Reset()
 	valueBuf := encodeBufferPool.Get().(*bytes.Buffer)
@@ -147,6 +150,7 @@ func DeriveSha(list DerivableList, hasher TrieHasher) common.Hash {
 	return hasher.Hash()
 }
 
+// CheckHash checks whether the root hash from the trie matches
 func CheckHash(expected string, actual []byte) {
 	// expected hash is a hex string, convert to bytes
 	expectedBytes, err := hex.DecodeString(expected[2:])
@@ -191,6 +195,7 @@ func StackTrieNewShaNewBlock(txns []*types.Transaction, expectedRoot string) {
 	CheckHash(expectedRoot, txnRootHash.Bytes())
 }
 
+// SimpleTrieOldShaNewBlock uses the SimpleTrie structure
 func SimpleTrieOldShaNewBlock(txns []*types.Transaction, expectedRoot string) {
 	list := types.Transactions(txns)
 	trie := simpletrie.NewTrie()
@@ -207,6 +212,8 @@ func SimpleTrieNewShaNewBlock(txns []*types.Transaction, expectedRoot string) {
 	CheckHash(expectedRoot, trie.Hash())
 }
 
+// TestTrieHash accepts a block and tests the transactions using Trie,
+//StackTrie, and SimpleTrie against the old and new DeriveSha methods.
 func TestTrieHash(blockNum int, txnRoot string) {
 	fmt.Println("Testing trie hash for block", blockNum)
 	txns := TransactionsFromJSON(blockNum)
